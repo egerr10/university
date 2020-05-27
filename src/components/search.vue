@@ -73,7 +73,7 @@
 /* eslint-disable no-console,prefer-destructuring */
 import axios from 'axios';
 import JQuery from 'jquery';
-import cities from '../../DataBase/cities';
+import citiesBase from '../../DataBase/cities';
 
 const $ = JQuery;
 
@@ -97,12 +97,12 @@ export default {
       history,
       loading,
       queryError,
-      links: [],
+      cities: [],
       timeout: null,
     };
   },
   mounted() {
-    this.links = cities;
+    this.cities = citiesBase;
     $(document).mouseup((e) => {
       const div = $('#input');
       const div2 = $('#history');
@@ -120,24 +120,13 @@ export default {
   computed: {
   },
   methods: {
-    loadAll() {
-      return [
-        { value: 'vue', link: 'https://github.com/vuejs/vue' },
-        { value: 'element', link: 'https://github.com/ElemeFE/element' },
-        { value: 'cooking', link: 'https://github.com/ElemeFE/cooking' },
-        { value: 'mint-ui', link: 'https://github.com/ElemeFE/mint-ui' },
-        { value: 'vuex', link: 'https://github.com/vuejs/vuex' },
-        { value: 'vue-router', link: 'https://github.com/vuejs/vue-router' },
-        { value: 'babel', link: 'https://github.com/babel/babel' },
-      ];
-    },
     querySearch(queryString, cb) {
       this.historyView = false;
-      const results = this.links.filter(this.createFilter(queryString));
+      const results = this.cities.filter(this.createFilter(queryString));
       cb(results);
     },
     createFilter(queryString) {
-      return link => (link.city.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      return item => (item.city.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
     },
 
     historyShow() { // отображаем историю запросов
@@ -146,7 +135,6 @@ export default {
       }
     },
     handleSelect(item) { // запускаем функцию поиска по википедии
-      console.log('хэндл', item);
       if (item.city || item.city === '') {
         this.query = item.city;
         this.getWeather();
@@ -190,6 +178,13 @@ export default {
       this.historyView = false;
       this.getWeather();
     },
+    group(array) {
+      return array.reduce((acc, obj) => {
+        acc[obj.day] = acc[obj.day] || [];
+        acc[obj.day].push(obj);
+        return acc;
+      }, {});
+    },
     getWeather() {
       this.query = this.query.trim();
       if (this.query.length > 1) {
@@ -198,13 +193,19 @@ export default {
         this.result = [];
         this.pushHistory();
         axios({
-          url: `http://api.openweathermap.org/data/2.5/forecast/daily?q=${this.query},ru&cnt=7&lang=ru&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
+          url: `http://api.openweathermap.org/data/2.5/forecast?q=${this.query},ru&lang=ru&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
           method: 'GET',
         })
           .then((response) => {
             this.loading = false;
             this.result = response.data;
-            console.log(response.data);
+
+            this.result.list.forEach((item, i) => {
+              [this.result.list[i].day] = item.dt_txt.split(' ');
+            });
+
+            this.result.list = this.group(this.result.list);
+            console.log('111', this.result);
           })
           .catch((error) => {
             this.loading = false;
