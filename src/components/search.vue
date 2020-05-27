@@ -4,29 +4,32 @@
     <el-row :gutter="10">
       <el-col :span="18">
         <div class="logo-block">
-          <a title="https://www.naumen.ru" href="https://www.naumen.ru" target="_blank"><div class="n-logo"></div></a>
-          <a title="https://ru.wikipedia.org/wiki/Naumen" href="https://ru.wikipedia.org/wiki/Naumen" target="_blank">
+          <a title="https://www.naumen.ru" href="https://www.naumen.ru" target="_blank">
+            <div class="n-logo"></div>
+          </a>
+          <a title="https://ru.wikipedia.org/wiki/Naumen"
+             href="https://ru.wikipedia.org/wiki/Naumen" target="_blank">
             <div class="w-logo"><img src="../assets/wikilogo.png" alt=""></div>
           </a>
         </div>
       </el-col>
       <el-col :span="18">
         <el-form :inline="true" @submit.native.prevent="getWeather" class="form-inline" status-icon>
-        <el-autocomplete id="input"
-          popper-class="my-autocomplete"
-          :trigger-on-focus="false"
-          :select-when-unmatched="true"
-          :clearable="true"
-          v-model="query"
-          :fetch-suggestions="querySearch"
-          @focus="historyShow"
-          placeholder="Выберите город"
-          @select="handleSelect"
-        >
-          <template slot-scope="{ item }">
-            <div class="value">{{ item.city }}</div>
-          </template>
-        </el-autocomplete>
+          <el-autocomplete id="input"
+                           popper-class="my-autocomplete"
+                           :trigger-on-focus="false"
+                           :select-when-unmatched="true"
+                           :clearable="true"
+                           v-model="query"
+                           :fetch-suggestions="querySearch"
+                           @focus="historyShow"
+                           placeholder="Выберите город"
+                           @select="handleSelect"
+          >
+            <template slot-scope="{ item }">
+              <div class="value">{{ item.city }}</div>
+            </template>
+          </el-autocomplete>
         </el-form>
 
         <div id="history" v-if="historyView" class="history-body">
@@ -51,18 +54,57 @@
 
     <div class="search-body">
       <loading v-if="loading"></loading>
-      <div class="result-container">
-        <div v-for="item in result" :key="item.pageid">
-          <div class="item-container">
-            <div class="item-link">
-              <a v-bind:href="item.fullurl" target="_blank">{{ item.title }}</a>
+      <div v-if="currentReceived" class="result-container">
+        <el-row>
+          <el-col :span="6">
+            <div class="current-title">
+              {{phrases.title}}<br>
+              {{currentWeather.name}}
             </div>
-            <div class="item-ext">
-              <div> <img v-if="item.thumbnail" v-bind:src="item.thumbnail.source" alt=""></div>
-              <div class="item-ext-text" v-html="item.extract"></div>
+            <div class="current-data">
+              <img :src="weatherImg(currentWeather.weather[0].icon)" alt="">
+              <div class="current-data-t">
+                {{currentWeather.main.temp}} °C
+                ({{phrases.feels_like}} {{currentWeather.main.feels_like}})
+              </div>
             </div>
-          </div>
-        </div>
+
+            <div class="weather-widget">
+            <table class="weather-widget__items table table-striped table-bordered table-condensed">
+              <tbody>
+              <tr>
+                <td>{{phrases.wind}}</td>
+                <td>{{currentWeather.wind.speed}} {{phrases.windSpeed}}</td>
+              </tr>
+              <tr>
+                <td>{{phrases.cloudiness}}</td>
+                <td>{{currentWeather.weather[0].description}}</td>
+              </tr>
+              <tr>
+                <td>{{phrases.pressure}}</td>
+                <td>{{Math.floor(currentWeather.main.pressure / 1.333)}} мм рт. ст.</td>
+              </tr>
+              <tr>
+                <td>{{phrases.humidity}}</td>
+                <td>{{currentWeather.main.humidity}} %</td>
+              </tr>
+
+              <tr>
+                <td>{{phrases.sunrise}}</td>
+                <td>05:56</td>
+              </tr>
+              <tr>
+                <td>{{phrases.sunset}}</td>
+                <td>23:55</td>
+              </tr>
+              </tbody>
+            </table>
+            </div>
+          </el-col>
+          <el-col :span="18">
+            <div class="grid-content bg-purple-light">иииии</div>
+          </el-col>
+        </el-row>
       </div>
 
     </div>
@@ -74,13 +116,13 @@
 import axios from 'axios';
 import JQuery from 'jquery';
 import citiesBase from '../../DataBase/cities';
+import language from '../../DataBase/language';
 
 const $ = JQuery;
 
 export default {
-  name: 'HelloNaumen',
+  name: 'MyWeather',
   data() {
-    const question = '';
     const query = '';
     const result = {};
     const history = [];
@@ -92,17 +134,35 @@ export default {
       query,
       result,
       historyView,
-      question,
       exampleResult,
       history,
       loading,
       queryError,
       cities: [],
       timeout: null,
+      currentWeather: null,
+      phrases: null,
+      selectedLanguage: null,
+      currentReceived: false,
+      forecastReceived: false,
     };
   },
   mounted() {
     this.cities = citiesBase;
+    if (!localStorage.getItem('language')) {
+      this.selectedLanguage = window.navigator.language;
+      localStorage.setItem('language', this.selectedLanguage);
+    } else {
+      this.selectedLanguage = localStorage.getItem('language');
+    }
+    this.phrases = (this.selectedLanguage === 'ru') ? language.ru : language.en;
+
+    if (!JSON.parse(localStorage.getItem('history'))) {
+      localStorage.setItem('history', JSON.stringify(this.history));
+    } else {
+      this.history = JSON.parse(localStorage.getItem('history'));
+    }
+
     $(document).mouseup((e) => {
       const div = $('#input');
       const div2 = $('#history');
@@ -111,15 +171,13 @@ export default {
         this.historyView = false;
       }
     });
-    if (!JSON.parse(localStorage.getItem('history'))) {
-      localStorage.setItem('history', JSON.stringify(this.history));
-    } else {
-      this.history = JSON.parse(localStorage.getItem('history'));
-    }
   },
   computed: {
   },
   methods: {
+    weatherImg(code) {
+      return `http://openweathermap.org/img/wn/${code}.png`;
+    },
     querySearch(queryString, cb) {
       this.historyView = false;
       const results = this.cities.filter(this.createFilter(queryString));
@@ -185,13 +243,34 @@ export default {
         return acc;
       }, {});
     },
+    getCurrentWeather() {
+      this.currentWeather = [];
+      this.currentReceived = false;
+      axios({
+        url: `http://api.openweathermap.org/data/2.5/weather?q=${this.query},ru&lang=ru&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
+        method: 'GET',
+      })
+        .then((response) => {
+          this.loading = false;
+          this.currentWeather = response.data;
+          this.pushHistory();
+          this.currentReceived = true;
+          console.log('current', this.currentWeather);
+        })
+        .catch((error) => {
+          this.loading = false;
+          this.queryError = true;
+          console.log(error);
+        });
+    },
     getWeather() {
       this.query = this.query.trim();
       if (this.query.length > 1) {
+        this.forecastReceived = false;
         this.queryError = false;
         this.loading = true;
         this.result = [];
-        this.pushHistory();
+        this.getCurrentWeather();
         axios({
           url: `http://api.openweathermap.org/data/2.5/forecast?q=${this.query},ru&lang=ru&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
           method: 'GET',
@@ -206,6 +285,7 @@ export default {
 
             this.result.list = this.group(this.result.list);
             console.log('111', this.result);
+            this.forecastReceived = true;
           })
           .catch((error) => {
             this.loading = false;

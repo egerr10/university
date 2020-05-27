@@ -1,0 +1,43 @@
+.current-title {
+    line-height: 1.4;
+    font-weight: 600;
+    font-size: 24px;
+}
+
+.current-data {
+    display: flex;
+    align-items: center;
+}
+
+/*Table*/
+
+.weather-widget .table-bordered, .weather-graphic .table-bordered {
+    border: 1px solid #ddd;
+}
+
+.weather-widget .table, .weather-graphic .table {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.weather-widget table, .weather-graphic table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.weather-widget table, .weather-graphic table {
+    max-width: 100%;
+    background-color: transparent;
+}
+
+.weather-widget .table-striped > tbody > tr:nth-child(odd) > td, .weather-widget .table-striped > tbody > tr:nth-child(odd) > th, .weather-graphic .table-striped > tbody > tr:nth-child(odd) > td, .weather-graphic .table-striped > tbody > tr:nth-child(odd) > th {
+    background-color: #f9f9f9;
+}
+
+.table-bordered > tbody > tr > th, .weather-widget .table-bordered > tfoot > tr > th, .weather-widget .table-bordered > thead > tr > td, .weather-widget .table-bordered > tbody > tr > td, .weather-widget .table-bordered > tfoot > tr > td, .weather-graphic .table-bordered > thead > tr > th, .weather-graphic .table-bordered > tbody > tr > th, .weather-graphic .table-bordered > tfoot > tr > th, .weather-graphic .table-bordered > thead > tr > td, .weather-graphic .table-bordered > tbody > tr > td, .weather-graphic .table-bordered > tfoot > tr > td {
+    border: 1px solid #ddd;
+}
+
+.weather-widget .table-condensed > thead > tr > th, .weather-widget .table-condensed > tbody > tr > th, .weather-widget .table-condensed > tfoot > tr > th, .weather-widget .table-condensed > thead > tr > td, .weather-widget .table-condensed > tbody > tr > td, .weather-widget .table-condensed > tfoot > tr > td, .weather-graphic .table-condensed > thead > tr > th, .weather-graphic .table-condensed > tbody > tr > th, .weather-graphic .table-condensed > tfoot > tr > th, .weather-graphic .table-condensed > thead > tr > td, .weather-graphic .table-condensed > tbody > tr > td, .weather-graphic .table-condensed > tfoot > tr > td {
+    padding: 5px;
+}
