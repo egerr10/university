@@ -2,7 +2,7 @@
   <div class="body">
 
     <el-row :gutter="10">
-      <el-col :span="18">
+      <el-col style="display: none" :span="18">
         <div class="logo-block">
           <a title="https://www.naumen.ru" href="https://www.naumen.ru" target="_blank">
             <div class="n-logo"></div>
@@ -43,6 +43,7 @@
             </div>
           </div>
         </div>
+
         <div class="fail" v-if="queryError">
           Поздравляем! Вы нашли город про который не знает никто!
         </div>
@@ -53,60 +54,102 @@
     </el-row>
 
     <div class="search-body">
+
       <loading v-if="loading"></loading>
+
       <div v-if="currentReceived" class="result-container">
-        <el-row>
-          <el-col :span="6">
+        <el-row :gutter="30">
+          <el-col :span="8">
             <div class="current-title">
               {{phrases.title}}<br>
-              {{currentWeather.name}}
+              {{weather.name}}
             </div>
             <div class="current-data">
-              <img :src="weatherImg(currentWeather.weather[0].icon)" alt="">
-              <div class="current-data-t">
-                {{currentWeather.main.temp}} °C
-                ({{phrases.feels_like}} {{currentWeather.main.feels_like}})
+              <img :src="weatherImg(weather.current.weather[0].icon)" alt="">
+              <div>
+                <div class="current-temp">{{weather.current.temp}} °C</div>
+                <div class="current-feels">
+                  ({{phrases.feels_like}} {{weather.current.feels_like}} °C)
+                </div>
               </div>
             </div>
+            <div>{{this.weather.current.dt | dateTime}}</div>
 
             <div class="weather-widget">
             <table class="weather-widget__items table table-striped table-bordered table-condensed">
               <tbody>
               <tr>
                 <td>{{phrases.wind}}</td>
-                <td>{{currentWeather.wind.speed}} {{phrases.windSpeed}}</td>
+                <td>{{weather.current.wind_speed}} {{phrases.windSpeed}}</td>
               </tr>
               <tr>
                 <td>{{phrases.cloudiness}}</td>
-                <td>{{currentWeather.weather[0].description}}</td>
+                <td>{{weather.current.weather[0].description}}</td>
               </tr>
               <tr>
                 <td>{{phrases.pressure}}</td>
-                <td>{{Math.floor(currentWeather.main.pressure / 1.333)}} мм рт. ст.</td>
+                <td>{{Math.floor(weather.current.pressure / 1.333)}} мм рт. ст.</td>
               </tr>
               <tr>
                 <td>{{phrases.humidity}}</td>
-                <td>{{currentWeather.main.humidity}} %</td>
+                <td>{{weather.current.humidity}} %</td>
               </tr>
 
               <tr>
                 <td>{{phrases.sunrise}}</td>
-                <td>05:56</td>
+                <td>{{weather.current.sunrise | time}}</td>
               </tr>
               <tr>
                 <td>{{phrases.sunset}}</td>
-                <td>23:55</td>
+                <td>{{weather.current.sunset | time}}</td>
               </tr>
               </tbody>
             </table>
             </div>
           </el-col>
-          <el-col :span="18">
-            <div class="grid-content bg-purple-light">иииии</div>
+
+          <el-col :span="16">
+            <div class="grid-content">
+              <el-tabs tab-position="top">
+                <el-tab-pane :label="phrases.daily">
+                  <div v-for="day in weather.daily" :key="day.dt" class="forecast-item">
+                    <div class="forecast-item-column-first">
+                      <div>{{day.dt | date2}}</div>
+                      <img :src="weatherImg(day.weather[0].icon)" :alt="day.weather[0].description">
+                    </div>
+                    <div class="forecast-item-column-second">
+                      <div class="forecast-item-row">
+                        <div class="day-temp">
+                          {{day.temp.day}} °C
+                        </div>
+                        <div class="night-temp">
+                          {{day.temp.night}} °C
+                        </div>
+                        <div class="cloud-description">
+                          {{day.weather[0].description}}
+                        </div>
+                      </div>
+                      <div class="forecast-item-row">
+                        {{day.wind_speed}} {{phrases.windSpeed}},
+                        {{phrases.humidity}} {{day.humidity}}%
+                      </div>
+                      <div class="forecast-item-row">
+                        {{phrases.windSpeed}} {{day.clouds}}%,
+                        {{Math.floor(day.pressure / 1.333)}} мм рт. ст.
+                      </div>
+                    </div>
+                  </div>
+                </el-tab-pane>
+
+                <el-tab-pane :label="phrases.hourly">
+                  Почасовой прогноз на 48 часов
+                </el-tab-pane>
+              </el-tabs>
+            </div>
           </el-col>
         </el-row>
-      </div>
 
+      </div>
     </div>
   </div>
 </template>
@@ -114,6 +157,7 @@
 <script>
 /* eslint-disable no-console,prefer-destructuring */
 import axios from 'axios';
+import moment from 'moment';
 import JQuery from 'jquery';
 import citiesBase from '../../DataBase/cities';
 import language from '../../DataBase/language';
@@ -140,14 +184,34 @@ export default {
       queryError,
       cities: [],
       timeout: null,
-      currentWeather: null,
+      weather: null,
       phrases: null,
       selectedLanguage: null,
       currentReceived: false,
       forecastReceived: false,
+      geoOptions: {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+      },
     };
   },
   mounted() {
+    function success(pos) {
+      const crd = pos.coords;
+
+      console.log('Your current position is:');
+      console.log(`Latitude : ${crd.latitude}`);
+      console.log(`Longitude: ${crd.longitude}`);
+      console.log(`More or less ${crd.accuracy} meters.`);
+    }
+
+    function error(err) {
+      console.warn(`ERROR(${err.code}): ${err.message}`);
+    }
+
+    navigator.geolocation.getCurrentPosition(success, error, this.geoOptions);
+
     this.cities = citiesBase;
     if (!localStorage.getItem('language')) {
       this.selectedLanguage = window.navigator.language;
@@ -243,19 +307,43 @@ export default {
         return acc;
       }, {});
     },
-    getCurrentWeather() {
-      this.currentWeather = [];
-      this.currentReceived = false;
+    getCurrentWeather() { // я знаю это глупо, но нужны координаты для полноценного запроса:(
       axios({
         url: `http://api.openweathermap.org/data/2.5/weather?q=${this.query},ru&lang=ru&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
         method: 'GET',
       })
         .then((response) => {
+          this.getOnecallWeather(response.data.coord);
+        })
+        .catch((error) => {
           this.loading = false;
-          this.currentWeather = response.data;
+          this.queryError = true;
+          console.log(error);
+        });
+    },
+    getOnecallWeather(coord) {
+      this.weather = [];
+      this.currentReceived = false;
+      this.queryError = false;
+      axios({
+        url: `http://api.openweathermap.org/data/2.5/onecall?lat=${coord.lat}&exclude=minutely&lon=${coord.lon}&lang=ru&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
+        method: 'GET',
+      })
+        .then((response) => {
           this.pushHistory();
+          this.loading = false;
+          this.weather = response.data;
+          this.weather.name = this.query;
+          this.weather.current.date = moment.unix(this.weather.current.dt).format('L');
+
+          this.weather.hourly.forEach((item, i) => {
+            this.weather.hourly[i].day = moment.unix(item.dt).format('L');
+          });
+
+          this.weather.hourly = this.group(this.weather.hourly);
+
           this.currentReceived = true;
-          console.log('current', this.currentWeather);
+          console.log('onecall', this.weather);
         })
         .catch((error) => {
           this.loading = false;
