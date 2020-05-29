@@ -13,8 +13,8 @@
           </a>
         </div>
       </el-col>
-      <el-col :span="18">
-        <el-form :inline="true" @submit.native.prevent="getWeather" class="form-inline" status-icon>
+      <el-col :span="10">
+        <el-form :inline="true" @submit.native.prevent="getCurrentWeather" class="form-inline" status-icon>
           <el-autocomplete id="input"
                            popper-class="my-autocomplete"
                            :trigger-on-focus="false"
@@ -22,7 +22,7 @@
                            :clearable="true"
                            v-model="query"
                            :fetch-suggestions="querySearch"
-                           @focus="historyShow"
+                           @focus="showQueryHistory"
                            placeholder="Выберите город"
                            @select="handleSelect"
           >
@@ -30,15 +30,16 @@
               <div class="value">{{ item.city }}</div>
             </template>
           </el-autocomplete>
+          <i v-on:click="getCurrentWeather" class="el-icon-search button-search" />
         </el-form>
 
-        <div id="history" v-if="historyView" class="history-body">
-          <div class="history-container">
-            <div class="history-body-item" v-for="(item, index) in history" v-bind:key="item">
-              <div class="history-item" v-on:click="getFromHistoryQuery(item)">{{item}}</div>
-              <div class="history-item-delete" v-on:click="deleteHistoryQuery(index)">удалить</div>
+        <div id="queryHistory" v-if="historyView" class="queryHistory-body">
+          <div class="queryHistory-container">
+            <div class="queryHistory-body-item" v-for="(item, index) in queryHistory" v-bind:key="item">
+              <div class="queryHistory-item" v-on:click="getFromHistoryQuery(item)">{{item}}</div>
+              <div class="queryHistory-item-delete" v-on:click="deleteHistoryQuery(index)">удалить</div>
             </div>
-            <div v-on:click="deleteHistoryAll" class="history-title">
+            <div v-on:click="deleteQueryHistoryAll" class="queryHistory-title">
               Очистить историю поиска
             </div>
           </div>
@@ -48,14 +49,16 @@
           Поздравляем! Вы нашли город про который не знает никто!
         </div>
       </el-col>
-      <el-col :span="2">
-        <el-button v-on:click="getWeather" size="medium" type="primary">Найти</el-button>
+      <el-col :span="10">
+        <el-button v-on:click="getCurrentLocation" icon="el-icon-position">
+          {{phrases.location}}
+        </el-button>
       </el-col>
     </el-row>
 
     <div class="search-body">
 
-      <loading v-if="loading"></loading>
+      <loading v-if="loading" />
 
       <div v-if="currentReceived" class="result-container">
         <el-row :gutter="30">
@@ -88,7 +91,7 @@
               </tr>
               <tr>
                 <td>{{phrases.pressure}}</td>
-                <td>{{Math.floor(weather.current.pressure / 1.333)}} мм рт. ст.</td>
+                <td>{{Math.floor(weather.current.pressure / 1.333)}} {{phrases.mercury}}</td>
               </tr>
               <tr>
                 <td>{{phrases.humidity}}</td>
@@ -135,7 +138,7 @@
                       </div>
                       <div class="forecast-item-row">
                         {{phrases.windSpeed}} {{day.clouds}}%,
-                        {{Math.floor(day.pressure / 1.333)}} мм рт. ст.
+                        {{Math.floor(day.pressure / 1.333)}} {{phrases.mercury}}
                       </div>
                     </div>
                   </div>
@@ -169,8 +172,7 @@ export default {
   data() {
     const query = '';
     const result = {};
-    const history = [];
-    const exampleResult = [];
+    const queryHistory = [];
     const historyView = false;
     const loading = false;
     const queryError = false;
@@ -178,10 +180,10 @@ export default {
       query,
       result,
       historyView,
-      exampleResult,
-      history,
+      queryHistory,
       loading,
       queryError,
+      wheatherHistory: [],
       cities: [],
       timeout: null,
       weather: null,
@@ -197,22 +199,8 @@ export default {
     };
   },
   mounted() {
-    function success(pos) {
-      const crd = pos.coords;
-
-      console.log('Your current position is:');
-      console.log(`Latitude : ${crd.latitude}`);
-      console.log(`Longitude: ${crd.longitude}`);
-      console.log(`More or less ${crd.accuracy} meters.`);
-    }
-
-    function error(err) {
-      console.warn(`ERROR(${err.code}): ${err.message}`);
-    }
-
-    navigator.geolocation.getCurrentPosition(success, error, this.geoOptions);
-
     this.cities = citiesBase;
+
     if (!localStorage.getItem('language')) {
       this.selectedLanguage = window.navigator.language;
       localStorage.setItem('language', this.selectedLanguage);
@@ -221,15 +209,17 @@ export default {
     }
     this.phrases = (this.selectedLanguage === 'ru') ? language.ru : language.en;
 
-    if (!JSON.parse(localStorage.getItem('history'))) {
-      localStorage.setItem('history', JSON.stringify(this.history));
+    if (!JSON.parse(localStorage.getItem('queryHistory'))) {
+      localStorage.setItem('queryHistory', JSON.stringify(this.queryHistory));
     } else {
-      this.history = JSON.parse(localStorage.getItem('history'));
+      this.queryHistory = JSON.parse(localStorage.getItem('queryHistory'));
     }
+
+    this.wheatherHistory = JSON.parse(localStorage.getItem('wheatherHistory')) || [];
 
     $(document).mouseup((e) => {
       const div = $('#input');
-      const div2 = $('#history');
+      const div2 = $('#queryHistory');
       if (!div.is(e.target) && div.has(e.target).length === 0
           && !div2.is(e.target) && div2.has(e.target).length === 0) {
         this.historyView = false;
@@ -242,6 +232,7 @@ export default {
     weatherImg(code) {
       return `http://openweathermap.org/img/wn/${code}.png`;
     },
+
     querySearch(queryString, cb) {
       this.historyView = false;
       const results = this.cities.filter(this.createFilter(queryString));
@@ -250,56 +241,71 @@ export default {
     createFilter(queryString) {
       return item => (item.city.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
     },
-
-    historyShow() { // отображаем историю запросов
-      if (!this.query && this.history.length > 0) {
-        this.historyView = true;
-      }
-    },
     handleSelect(item) { // запускаем функцию поиска по википедии
       if (item.city || item.city === '') {
         this.query = item.city;
-        this.getWeather();
+        this.getCurrentWeather();
       } else {
         this.query = item.value;
       }
     },
-    checkHistory() { // проверяем есть ли такой запрос в истории, если есть не добавляем
+
+    showQueryHistory() { // отображаем историю запросов
+      if (!this.query && this.queryHistory.length > 0) {
+        this.historyView = true;
+      }
+    },
+    checkQueryHistory() { // проверяем есть ли такой запрос в истории, если есть не добавляем
       const word = this.query;
-      const checkHistory = this.history.slice();
+      const checkHistory = this.queryHistory.slice();
       for (let i = 0; i < checkHistory.length; i += 1) {
         checkHistory[i] = checkHistory[i].toLowerCase();
       }
       return checkHistory.indexOf(word.toLowerCase()) !== -1;
     },
-    pushHistory() { // добавляем запрос в историю
+    pushQueryHistory() { // добавляем запрос в историю
       this.query = this.query.trim();
-      if (this.history.length < 15 && !this.checkHistory() && this.query.length > 0) {
-        this.history.unshift(this.query);
-        this.saveHistory();
-      } else if (this.history.length >= 15 && !this.checkHistory() && this.query.length > 0) {
-        this.history.unshift(this.query);
-        this.history.pop();
-        this.saveHistory();
+      if (this.queryHistory.length < 15 && !this.checkQueryHistory() && this.query.length > 0) {
+        this.queryHistory.unshift(this.query);
+        this.saveQueryHistory();
+      } else if (this.queryHistory.length >= 15 && !this.checkQueryHistory() && this.query.length > 0) {
+        this.queryHistory.unshift(this.query);
+        this.queryHistory.pop();
+        this.saveQueryHistory();
       }
     },
-    saveHistory() { // сохраняем в localStorage
-      localStorage.setItem('history', JSON.stringify(this.history));
+    saveQueryHistory() { // сохраняем в localStorage
+      localStorage.setItem('queryHistory', JSON.stringify(this.queryHistory));
     },
-    deleteHistoryAll() { // очищаем историю
+    deleteQueryHistoryAll() { // очищаем историю
       this.historyView = false;
-      this.history = [];
-      this.saveHistory();
+      this.queryHistory = [];
+      this.saveQueryHistory();
     },
     deleteHistoryQuery(index) { // очищаем запрос из истории
-      this.history.splice(index, 1);
-      this.saveHistory();
+      this.queryHistory.splice(index, 1);
+      this.saveQueryHistory();
     },
     getFromHistoryQuery(query) { // поиск по запросу из истории
       this.query = query;
       this.historyView = false;
-      this.getWeather();
+      this.getCurrentWeather();
     },
+
+    pushWhetherHistory(wheather) { // добавляем запрос в историю
+      if (this.wheatherHistory.length < 30) {
+        this.wheatherHistory.unshift(wheather);
+        this.saveWhetherHistory();
+      } else {
+        this.queryHistory.unshift(wheather);
+        this.queryHistory.pop();
+        this.saveWhetherHistory();
+      }
+    },
+    saveWhetherHistory() { // сохраняем в localStorage
+      localStorage.setItem('wheatherHistory', JSON.stringify(this.wheatherHistory));
+    },
+
     group(array) {
       return array.reduce((acc, obj) => {
         acc[obj.day] = acc[obj.day] || [];
@@ -307,13 +313,29 @@ export default {
         return acc;
       }, {});
     },
-    getCurrentWeather() { // я знаю это глупо, но нужны координаты для полноценного запроса:(
+    getCurrentLocation() {
+      function error(err) {
+        console.warn(`ERROR(${err.code}): ${err.message}`);
+      }
+
+      navigator.geolocation.getCurrentPosition((position) => {
+        const coord = {};
+        coord.lat = position.coords.latitude;
+        coord.lon = position.coords.longitude;
+        this.getWeatherCurrentLocation(coord);
+      }, error, this.geoOptions);
+    },
+    getWeatherCurrentLocation(coord) {
+      this.currentReceived = false;
+      this.weather = [];
+      this.queryError = false;
+      this.loading = true;
       axios({
-        url: `http://api.openweathermap.org/data/2.5/weather?q=${this.query},ru&lang=ru&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
+        url: `http://api.openweathermap.org/data/2.5/weather?lat=${coord.lat}&lon=${coord.lon}&lang=${this.selectedLanguage}&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
         method: 'GET',
       })
         .then((response) => {
-          this.getOnecallWeather(response.data.coord);
+          this.getOnecallWeather(response.data.coord, response.data.name);
         })
         .catch((error) => {
           this.loading = false;
@@ -321,19 +343,36 @@ export default {
           console.log(error);
         });
     },
-    getOnecallWeather(coord) {
-      this.weather = [];
+    getCurrentWeather() { // получаем координаты и название для полноценного запроса:(
       this.currentReceived = false;
+      this.weather = [];
       this.queryError = false;
+      this.loading = true;
       axios({
-        url: `http://api.openweathermap.org/data/2.5/onecall?lat=${coord.lat}&exclude=minutely&lon=${coord.lon}&lang=ru&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
+        url: `http://api.openweathermap.org/data/2.5/weather?q=${this.query},ru&lang=${this.selectedLanguage}&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
         method: 'GET',
       })
         .then((response) => {
-          this.pushHistory();
+          this.getOnecallWeather(response.data.coord, response.data.name);
+        })
+        .catch((error) => {
           this.loading = false;
+          this.queryError = true;
+          console.log(error);
+        });
+    },
+    getOnecallWeather(coord, name) {
+      this.currentReceived = false;
+      this.weather = [];
+      this.queryError = false;
+      this.loading = true;
+      axios({
+        url: `http://api.openweathermap.org/data/2.5/onecall?lat=${coord.lat}&lon=${coord.lon}&exclude=minutely&lang=${this.selectedLanguage}&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
+        method: 'GET',
+      })
+        .then((response) => {
           this.weather = response.data;
-          this.weather.name = this.query;
+          this.weather.name = name;
           this.weather.current.date = moment.unix(this.weather.current.dt).format('L');
 
           this.weather.hourly.forEach((item, i) => {
@@ -342,7 +381,12 @@ export default {
 
           this.weather.hourly = this.group(this.weather.hourly);
 
+          this.loading = false;
           this.currentReceived = true;
+          this.loading = false;
+
+          this.pushQueryHistory();
+          this.pushWhetherHistory(this.weather);
           console.log('onecall', this.weather);
         })
         .catch((error) => {
@@ -350,37 +394,6 @@ export default {
           this.queryError = true;
           console.log(error);
         });
-    },
-    getWeather() {
-      this.query = this.query.trim();
-      if (this.query.length > 1) {
-        this.forecastReceived = false;
-        this.queryError = false;
-        this.loading = true;
-        this.result = [];
-        this.getCurrentWeather();
-        axios({
-          url: `http://api.openweathermap.org/data/2.5/forecast?q=${this.query},ru&lang=ru&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
-          method: 'GET',
-        })
-          .then((response) => {
-            this.loading = false;
-            this.result = response.data;
-
-            this.result.list.forEach((item, i) => {
-              [this.result.list[i].day] = item.dt_txt.split(' ');
-            });
-
-            this.result.list = this.group(this.result.list);
-            console.log('111', this.result);
-            this.forecastReceived = true;
-          })
-          .catch((error) => {
-            this.loading = false;
-            this.queryError = true;
-            console.log(error);
-          });
-      }
     },
   },
 };
@@ -414,54 +427,56 @@ export default {
     bottom: 20px;
   }
 
-  .history-body {
+  .queryHistory-body {
     padding: 10px;
+    margin-top: 10px;
     border: 1px solid #dcdfe6;
     position: relative;
     z-index: 10;
     background-color: white;
   }
 
-  .history-container {
+  .queryHistory-container {
     width: 100%;
     border-top: none;
   }
 
-  .history-body-item {
+  .queryHistory-body-item {
     margin-bottom: 10px;
     display: -webkit-box;
     display: flex;
   }
-  .history-item, .history-item-delete, .history-title {
+  .queryHistory-item, .queryHistory-item-delete, .queryHistory-title {
     cursor: pointer;
     color: #237ace;
     text-decoration: none;
     font-size: 14px;
   }
 
-  .history-title {
+  .queryHistory-title {
     font-weight: 600;
     font-size: 12px;
     cursor: pointer;
   }
 
-  .history-item {
+  .queryHistory-item {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .history-item-delete {
+  .queryHistory-item-delete {
     margin-left: auto;
   }
-  .history-item:hover,
-  .history-item-delete:hover,
-  .history-title:hover {
+  .queryHistory-item:hover,
+  .queryHistory-item-delete:hover,
+  .queryHistory-title:hover {
     color: red;
   }
   .search-body {
     margin: 0 auto;
   }
   .form-inline {
+    position: relative;
     width: auto;
     text-align: left;
     display: -webkit-flex;
@@ -536,11 +551,20 @@ export default {
     color: #6d6d6d;
   }
 
+  .button-search {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 12px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
   @media screen and (max-width: 500px) {
     .body {
       padding-top: 0;
     }
-    .history-item, .history-item-delete, .history-title {
+    .queryHistory-item, .queryHistory-item-delete, .queryHistory-title {
       font-size: 12px;
     }
   }

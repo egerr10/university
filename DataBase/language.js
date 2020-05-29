@@ -12,6 +12,8 @@ export default {
     daily: 'Прогноз на неделю',
     hourly: 'Почасовой прогноз на 48 часов',
     clouds: 'Облачность',
+    mercury: 'мм рт. ст.',
+    location: 'Текущее расположение',
   },
   en: {
     title: 'Weather in',
@@ -26,5 +28,7 @@ export default {
     daily: 'Daily forecast',
     hourly: 'Hourly forecast',
     clouds: 'clouds',
+    mercury: 'mm of mercury',
+    location: 'Current location',
   },
 };
