@@ -56,7 +56,7 @@
       <loading v-if="loading"></loading>
       <div v-if="currentReceived" class="result-container">
         <el-row>
-          <el-col :span="6">
+          <el-col :span="7">
             <div class="current-title">
               {{phrases.title}}<br>
               {{currentWeather.name}}
@@ -65,7 +65,7 @@
               <img :src="weatherImg(currentWeather.weather[0].icon)" alt="">
               <div class="current-data-t">
                 {{currentWeather.main.temp}} °C
-                ({{phrases.feels_like}} {{currentWeather.main.feels_like}})
+                ({{phrases.feels_like}} {{currentWeather.main.feels_like}}°)
               </div>
             </div>
 
@@ -101,7 +101,7 @@
             </table>
             </div>
           </el-col>
-          <el-col :span="18">
+          <el-col :span="17">
             <div class="grid-content bg-purple-light">иииии</div>
           </el-col>
         </el-row>
