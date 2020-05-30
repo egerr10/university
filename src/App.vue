@@ -1,38 +1,52 @@
 <template>
-  <el-container class="app" v-bind:class="{ default: !changeTheme, dark: changeTheme, }" id="app">
-    <el-header height="0">
-      <div title="Сменить тему" class="theme">
-        <div class="them-item-body">
-          <div class="theme-item-inner" v-bind:class="{ default: changeTheme, dark: !changeTheme, }"
-               v-on:click="test"></div>
-        </div>
-      </div>
-    </el-header>
-    <el-main>
-      <router-view></router-view>
-    </el-main>
-  </el-container>
+  <div class="app grid-container" id="app">
+    <div class="lang-button">
+      <img @click="changeLang" :src="langIcon" height="32" width="32"  alt=""/>
+    </div>
+    <component v-if="selectedLanguage" v-bind:layout.sync="layout" v-bind:is="layout" :selectedLanguage="selectedLanguage"></component>
+  </div>
 </template>
 
 <script>
 /* eslint-disable no-console,prefer-destructuring */
+/* eslint max-len: ["error", { "code": 200 }] */
+import search from './components/search.vue';
 
 export default {
   name: 'App',
+  components: {
+    search,
+  },
   data() {
     return {
-      changeTheme: false,
+      selectedLanguage: null,
+      layout: 'search',
     };
   },
+  mounted() {
+    if (!localStorage.getItem('language')) {
+      this.selectedLanguage = (window.navigator.language === 'ru') ? 'ru' : 'en';
+      localStorage.setItem('language', this.selectedLanguage);
+    } else {
+      this.selectedLanguage = localStorage.getItem('language');
+    }
+  },
+  computed: {
+    langIcon() {
+      // eslint-disable-next-line global-require
+      return (this.selectedLanguage === 'ru') ? require('./assets/img/uk.png') : require('./assets/img/rus.png');
+    },
+  },
   methods: {
-    test() {
-      this.changeTheme = this.changeTheme === false;
+    changeLang() {
+      this.selectedLanguage = (this.selectedLanguage === 'ru') ? 'en' : 'ru';
+      localStorage.setItem('language', this.selectedLanguage);
     },
   },
 };
 </script>
 
-<style>
+<style scoped>
   body {
     margin: 0;
   }
@@ -47,49 +61,10 @@ export default {
     min-height: 100vh;
   }
 
-  .theme {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    width: 40px;
-    position: absolute;
-    top: 25px;
-    right: 15px;
-    z-index: 100;
-  }
-
-  .them-item-body {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    margin-right: 10px;
-    border: 1px solid gray;
-    padding: 3px;
+  .lang-button {
     cursor: pointer;
+    position: absolute;
+    right: 30px;
+    top: 30px;
   }
-
-  .theme-item-inner {
-    background-color: cadetblue;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    margin-right: 10px;
-    border: 1px solid gray;
-  }
-
-  .default {
-    background-color: white;
-    color: #2c3e50;
-  }
-
-  .dark {
-    background-color: #2c2c2c;
-    color: #ffffff;
-  }
-
-  .dark a {
-    color: #66b4ff!important;
-  }
-
-
 </style>

@@ -5,12 +5,11 @@ import 'element-ui/lib/theme-chalk/index.css';
 import App from './App.vue';
 import router from './router';
 import Loading from './components/Loading.vue';
+import './assets/foundation.css';
 import './assets/main.css';
 
 Vue.use(ElementUI);
 Vue.component('Loading', Loading);
-
-moment.locale('ru');
 
 Vue.filter('date', (value) => {
   if (!value) return value;
@@ -36,5 +35,5 @@ Vue.config.productionTip = false;
 
 new Vue({
   router,
-  render: h => h(App),
+  render: (h) => h(App),
 }).$mount('#app');

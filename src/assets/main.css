@@ -18,6 +18,10 @@
     font-size: 14px;
 }
 
+.current-time {
+    font-size: 14px;
+}
+
 /*Table*/
 
 .weather-widget .table-bordered, .weather-graphic .table-bordered {
@@ -74,7 +78,11 @@
     line-height: 1.8;
 }
 
-.day-temp, .night-temp {
+.forecast-item-time {
+    display: inline-block;
+}
+
+.day-temp, .night-temp, .hour-temp {
     display: inline;
     padding: 4px;
     margin-right: 10px;
@@ -98,6 +106,11 @@
     opacity: 0.9;
 }
 
+.hour-temp {
+    background-color: rgb(153, 153, 153);
+    border-radius: 10px;
+}
+
 .cloud-description {}
 
 .forecast-item {
@@ -105,6 +118,28 @@
     margin: 15px 0;
 }
 
+.forecast-item:last-child {
+    border: none;
+}
+
 .el-input__suffix {
     margin-right: 30px;
+}
+
+/*hourly*/
+
+.hourly-day-title {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #d9d9d9;
+    background-color: #f4f4f4;
+}
+
+
+@media screen and (max-width: 500px) {
+    .forecast-item-time {
+        display: block;
+    }
 }

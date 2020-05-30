@@ -13,10 +13,6 @@ html {
 body {
   margin: 0; }
 
-h1 {
-  font-size: 2em;
-  margin: 0.67em 0; }
-
 hr {
   -webkit-box-sizing: content-box;
           box-sizing: content-box;
@@ -256,9 +252,6 @@ td {
   padding: 0; }
 
 p {
-  margin-bottom: 1rem;
-  font-size: inherit;
-  line-height: 1.6;
   text-rendering: optimizeLegibility; }
 
 em,
@@ -281,10 +274,7 @@ h3, .h3,
 h4, .h4,
 h5, .h5,
 h6, .h6 {
-  font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   font-style: normal;
-  font-weight: normal;
-  color: inherit;
   text-rendering: optimizeLegibility; }
   h1 small, .h1 small,
   h2 small, .h2 small,
@@ -293,65 +283,11 @@ h6, .h6 {
   h5 small, .h5 small,
   h6 small, .h6 small {
     line-height: 0;
-    color: #cacaca; }
-
-h1, .h1 {
-  font-size: 1.5rem;
-  line-height: 1.4;
-  margin-top: 0;
-  margin-bottom: 0.5rem; }
-
-h2, .h2 {
-  font-size: 1.25rem;
-  line-height: 1.4;
-  margin-top: 0;
-  margin-bottom: 0.5rem; }
-
-h3, .h3 {
-  font-size: 1.1875rem;
-  line-height: 1.4;
-  margin-top: 0;
-  margin-bottom: 0.5rem; }
-
-h4, .h4 {
-  font-size: 1.125rem;
-  line-height: 1.4;
-  margin-top: 0;
-  margin-bottom: 0.5rem; }
-
-h5, .h5 {
-  font-size: 1.0625rem;
-  line-height: 1.4;
-  margin-top: 0;
-  margin-bottom: 0.5rem; }
-
-h6, .h6 {
-  font-size: 1rem;
-  line-height: 1.4;
-  margin-top: 0;
-  margin-bottom: 0.5rem; }
-
-@media print, screen and (min-width: 40em) {
-  h1, .h1 {
-    font-size: 3rem; }
-  h2, .h2 {
-    font-size: 2.5rem; }
-  h3, .h3 {
-    font-size: 1.9375rem; }
-  h4, .h4 {
-    font-size: 1.5625rem; }
-  h5, .h5 {
-    font-size: 1.25rem; }
-  h6, .h6 {
-    font-size: 1rem; } }
-
+  }
 a {
   line-height: inherit;
-  color: #2ba6cb;
   text-decoration: none;
   cursor: pointer; }
-  a:hover, a:focus {
-    color: #258faf; }
   a img {
     border: 0; }
 
@@ -550,12 +486,6 @@ textarea {
   max-width: 100%; }
   textarea[rows] {
     height: auto; }
-
-input:disabled, input[readonly],
-textarea:disabled,
-textarea[readonly] {
-  background-color: #e6e6e6;
-  cursor: not-allowed; }
 
 [type='submit'],
 [type='button'] {

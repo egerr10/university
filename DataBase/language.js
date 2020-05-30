@@ -1,5 +1,6 @@
 export default {
   ru: {
+    searchTitle: 'Поиск города',
     title: 'Погода в городе',
     wind: 'Ветер',
     cloudiness: 'Облачность',
@@ -10,12 +11,14 @@ export default {
     windSpeed: 'м/с',
     feels_like: 'ощущается как',
     daily: 'Прогноз на неделю',
-    hourly: 'Почасовой прогноз на 48 часов',
+    hourly: 'Прогноз на 48 часов',
     clouds: 'Облачность',
     mercury: 'мм рт. ст.',
     location: 'Текущее расположение',
+    searchError: 'Поздравляем! Вы нашли город о котором не знаем даже мы!',
   },
   en: {
+    searchTitle: 'Your city name',
     title: 'Weather in',
     wind: 'Wind',
     cloudiness: 'Cloudiness',
@@ -30,5 +33,6 @@ export default {
     clouds: 'clouds',
     mercury: 'mm of mercury',
     location: 'Current location',
+    searchError: 'Congratulations! You\'ve found a city that even we don\'t know about!!',
   },
 };
