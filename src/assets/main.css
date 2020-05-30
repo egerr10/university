@@ -7,6 +7,15 @@
 .current-data {
     display: flex;
     align-items: center;
+    margin: 10px 0;
+}
+
+.current-temp {
+    font-weight: 600;
+}
+
+.current-feels {
+    font-size: 14px;
 }
 
 /*Table*/
@@ -18,6 +27,7 @@
 .weather-widget .table, .weather-graphic .table {
     width: 100%;
     margin-bottom: 20px;
+    font-size: 14px;
 }
 
 .weather-widget table, .weather-graphic table {
@@ -40,4 +50,61 @@
 
 .weather-widget .table-condensed > thead > tr > th, .weather-widget .table-condensed > tbody > tr > th, .weather-widget .table-condensed > tfoot > tr > th, .weather-widget .table-condensed > thead > tr > td, .weather-widget .table-condensed > tbody > tr > td, .weather-widget .table-condensed > tfoot > tr > td, .weather-graphic .table-condensed > thead > tr > th, .weather-graphic .table-condensed > tbody > tr > th, .weather-graphic .table-condensed > tfoot > tr > th, .weather-graphic .table-condensed > thead > tr > td, .weather-graphic .table-condensed > tbody > tr > td, .weather-graphic .table-condensed > tfoot > tr > td {
     padding: 5px;
+}
+
+/*forecast*/
+
+.forecast-item {
+    display: flex;
+    font-size: 14px;
+}
+
+.forecast-item-column-first {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.forecast-item-column-second {
+    margin-left: 80px;
+}
+.forecast-item-row {
+    display: flex;
+    align-items: center;
+    line-height: 1.8;
+}
+
+.day-temp, .night-temp {
+    display: inline;
+    padding: 4px;
+    margin-right: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+}
+
+.day-temp {
+    background-color: #EB6E4B;
+    opacity: 0.9;
+}
+
+.night-temp {
+    background-color: #48484A;
+    opacity: 0.9;
+}
+
+.cloud-description {}
+
+.forecast-item {
+    border-bottom: 1px solid #e4e7ed;
+    margin: 15px 0;
+}
+
+.el-input__suffix {
+    margin-right: 30px;
 }

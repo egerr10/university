@@ -9,6 +9,11 @@ export default {
     sunset: 'Закат',
     windSpeed: 'м/с',
     feels_like: 'ощущается как',
+    daily: 'Прогноз на неделю',
+    hourly: 'Почасовой прогноз на 48 часов',
+    clouds: 'Облачность',
+    mercury: 'мм рт. ст.',
+    location: 'Текущее расположение',
   },
   en: {
     title: 'Weather in',
@@ -20,5 +25,10 @@ export default {
     sunset: 'Sunset',
     windSpeed: 'm/s',
     feels_like: 'feels like',
+    daily: 'Daily forecast',
+    hourly: 'Hourly forecast',
+    clouds: 'clouds',
+    mercury: 'mm of mercury',
+    location: 'Current location',
   },
 };

@@ -20,24 +20,13 @@
 export default {
   name: 'App',
   data() {
-    const defaultTheme = true;
-    const darkTheme = false;
-    const changeTheme = false;
     return {
-      defaultTheme, darkTheme, changeTheme,
+      changeTheme: false,
     };
   },
   methods: {
     test() {
       this.changeTheme = this.changeTheme === false;
-    },
-    def() {
-      this.defaultTheme = true;
-      this.darkTheme = false;
-    },
-    dark() {
-      this.defaultTheme = false;
-      this.darkTheme = true;
     },
   },
 };
