@@ -16,6 +16,9 @@ export default {
     mercury: 'мм рт. ст.',
     location: 'Текущее расположение',
     searchError: 'Поздравляем! Вы нашли город о котором не знаем даже мы!',
+    archive: 'Архив',
+    archiveQuery: 'Архив запросов',
+    backToSearch: 'Назад к поиску',
   },
   en: {
     searchTitle: 'Your city name',
@@ -34,5 +37,8 @@ export default {
     mercury: 'mm of mercury',
     location: 'Current location',
     searchError: 'Congratulations! You\'ve found a city that even we don\'t know about!!',
+    archive: 'Archive',
+    archiveQuery: 'Request archive',
+    backToSearch: 'Back to search',
   },
 };

@@ -1,8 +1,9 @@
 <template>
-  <div class="body">
-    <div class="grid-x grid-margin-x search-container">
+  <div class="container">
+    <div class="grid-x search-container">
       <div class="cell auto">
-        <el-form :inline="true" @submit.native.prevent="getCurrentWeather" class="form-inline" status-icon>
+        <el-form :inline="true" @submit.native.prevent="getCurrentWeather" class="form-inline"
+                 status-icon>
           <el-autocomplete id="input"
                            popper-class="my-autocomplete"
                            :trigger-on-focus="false"
@@ -17,14 +18,16 @@
               <div class="value">{{ item.city }}</div>
             </template>
           </el-autocomplete>
-          <i v-on:click="getCurrentWeather" class="el-icon-search button-search" />
+          <i v-on:click="getCurrentWeather" class="el-icon-search button-search"/>
         </el-form>
 
         <div id="queryHistory" v-if="historyView" class="queryHistory-body">
           <div class="queryHistory-container">
-            <div class="queryHistory-body-item" v-for="(item, index) in queryHistory" v-bind:key="item">
+            <div class="queryHistory-body-item" v-for="(item, index) in queryHistory"
+                 v-bind:key="item">
               <div class="queryHistory-item" v-on:click="getFromHistoryQuery(item)">{{item}}</div>
-              <div class="queryHistory-item-delete" v-on:click="deleteHistoryQuery(index)">удалить</div>
+              <div class="queryHistory-item-delete" v-on:click="deleteHistoryQuery(index)">удалить
+              </div>
             </div>
             <div v-on:click="deleteQueryHistoryAll" class="queryHistory-title">
               Очистить историю поиска
@@ -36,10 +39,13 @@
           {{phrases.searchError}}
         </div>
       </div>
-      <div class="cell shrink">
-        <el-button v-on:click="getCurrentLocation" class="cell auto" icon="el-icon-position">
+      <div class="cell shrink current-button">
+        <el-button v-on:click="getCurrentLocation" class="cell shrink" icon="el-icon-position">
           <span class="hide-for-small-only">{{phrases.location}}</span>
         </el-button>
+      </div>
+      <div class="cell shrink">
+        <el-button v-on:click="$emit('update:layout', 'history')" class="cell shrink" icon="el-icon-receiving" :title="phrases.archive" />
       </div>
     </div>
 
@@ -121,7 +127,7 @@
                         {{phrases.humidity}} {{day.humidity}}%
                       </div>
                       <div class="forecast-item-row">
-                        {{phrases.windSpeed}} {{day.clouds}}%,
+                        {{phrases.cloudiness}}: {{day.clouds}}%,
                         {{Math.floor(day.pressure / 1.333)}} {{phrases.mercury}}
                       </div>
                     </div>
@@ -297,7 +303,7 @@ export default {
       this.getCurrentWeather();
     },
     pushWhetherHistory(weather) { // добавляем запрос в историю
-      if (this.weatherHistory.length < 30) {
+      if (this.weatherHistory.length < 100) {
         this.weatherHistory.unshift(weather);
         this.saveWhetherHistory();
       } else {
@@ -396,7 +402,7 @@ export default {
     },
   },
   watch: {
-    selectedLanguage(selectedLanguage) { // ловим урлы
+    selectedLanguage(selectedLanguage) { // отслеживаем изменения в props и меняем язык, запрашиваем погоду в текущем языке
       moment.locale(selectedLanguage);
       this.phrases = (selectedLanguage === 'ru') ? language.ru : language.en;
       if (this.query) { this.getCurrentWeather(); }
@@ -407,7 +413,7 @@ export default {
 
 
 <style>
-  .body {
+  .container {
     margin: 0 auto;
     max-width: 1000px;
   }
@@ -511,9 +517,17 @@ export default {
     cursor: pointer;
     font-size: 16px;
   }
+
+  .current-button {
+    margin: 0 15px;
+  }
   @media screen and (max-width: 500px) {
     .queryHistory-item, .queryHistory-item-delete, .queryHistory-title {
       font-size: 12px;
+    }
+
+    .current-button {
+      margin: 0 5px;
     }
   }
 </style>

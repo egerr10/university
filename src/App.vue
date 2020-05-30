@@ -10,12 +10,13 @@
 <script>
 /* eslint-disable no-console,prefer-destructuring */
 /* eslint max-len: ["error", { "code": 200 }] */
-import search from './components/search.vue';
+import search from './components/Search.vue';
+import history from './components/History.vue';
 
 export default {
   name: 'App',
   components: {
-    search,
+    search, history,
   },
   data() {
     return {
