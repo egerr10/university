@@ -331,7 +331,7 @@ export default {
       this.queryError = false;
       this.loading = true;
       axios({
-        url: `http://api.openweathermap.org/data/2.5/weather?lat=${coord.lat}&lon=${coord.lon}&lang=${this.selectedLanguage}&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
+        url: `https://api.openweathermap.org/data/2.5/weather?lat=${coord.lat}&lon=${coord.lon}&lang=${this.selectedLanguage}&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
         method: 'GET',
       })
         .then((response) => {
@@ -350,7 +350,7 @@ export default {
       this.queryError = false;
       this.loading = true;
       axios({
-        url: `http://api.openweathermap.org/data/2.5/weather?q=${this.query},ru&lang=${this.selectedLanguage}&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
+        url: `https://api.openweathermap.org/data/2.5/weather?q=${this.query},ru&lang=${this.selectedLanguage}&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
         method: 'GET',
       })
         .then((response) => {
@@ -369,7 +369,7 @@ export default {
       this.queryError = false;
       this.loading = true;
       axios({
-        url: `http://api.openweathermap.org/data/2.5/onecall?lat=${coord.lat}&lon=${coord.lon}&exclude=minutely&lang=${this.selectedLanguage}&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
+        url: `https://api.openweathermap.org/data/2.5/onecall?lat=${coord.lat}&lon=${coord.lon}&exclude=minutely&lang=${this.selectedLanguage}&units=metric&appid=f05a9d4f7cb1c74744d098bfaefdd35e`,
         method: 'GET',
       })
         .then((response) => {
