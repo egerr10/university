@@ -196,7 +196,7 @@ export default {
       result: {},
       queryHistory: [],
       historyView: false,
-      loading: false,
+      loading: true,
       queryError: false,
       weatherHistory: [],
       cities: [],

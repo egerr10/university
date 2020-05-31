@@ -27,10 +27,6 @@ export default {
 
 <style scoped>
   .loader{
-    height: 80px;
-    width: 650px;
-    text-align: center;
-    vertical-align: top;
     margin-top: 20px;
   }
   svg path {
