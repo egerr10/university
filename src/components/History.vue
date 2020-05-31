@@ -17,7 +17,11 @@
           </el-button>
         </div>
 
-        <div class="cell medium-16">
+        <div v-if="!this.weather.length" class="cell archive-empty">
+          {{phrases.archiveEmpty}}
+        </div>
+
+        <div class="cell">
               <div v-for="day in infinityEmulator()" :key="day.dt" class="grid-x forecast-item">
                 <div class="cell shrink">
                   <div class="forecast-item-name">{{day.name}}</div>
@@ -112,7 +116,7 @@ export default {
     },
   },
   methods: {
-    sortWeather() {
+    sortWeather() { // сортируем погоду по дате
       if (this.sortKey) {
         this.weather.sort((a, b) => (a.current.dt < b.current.dt ? 1 : -1));
         this.sortKey = false;
@@ -173,5 +177,10 @@ export default {
 
   .sort-button {
     margin-top: 10px;
+  }
+
+  .archive-empty {
+    margin-top: 20px;
+    font-size: 16px;
   }
 </style>
