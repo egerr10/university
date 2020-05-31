@@ -34,7 +34,7 @@ export default {
     windSpeed: 'm/s',
     feels_like: 'feels like',
     daily: 'Daily forecast',
-    hourly: 'Hourly forecast',
+    hourly: 'Forecast for 48 hours',
     clouds: 'clouds',
     mercury: 'mm of mercury',
     location: 'Current location',

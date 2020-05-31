@@ -3,6 +3,8 @@
     <div class="lang-button">
       <img @click="changeLang" :src="langIcon" height="32" width="32"  alt=""/>
     </div>
+
+    <!--вместо стандартного роутинга используется динамическое переключение компонентов-->
     <component v-if="selectedLanguage" v-bind:layout.sync="layout" v-bind:is="layout" :selectedLanguage="selectedLanguage"></component>
   </div>
 </template>
@@ -24,7 +26,7 @@ export default {
       layout: 'search',
     };
   },
-  mounted() { /* проверяем LS на наличие поля с локализацией, если нет - записываем */
+  mounted() { /* проверяем LS на наличие поля с локализацией, если нет - записываем в LS */
     if (!localStorage.getItem('language')) {
       this.selectedLanguage = (window.navigator.language === 'ru') ? 'ru' : 'en';
       localStorage.setItem('language', this.selectedLanguage);
@@ -48,11 +50,7 @@ export default {
 </script>
 
 <style scoped>
-  body {
-    margin: 0;
-  }
-
-  .app {
+   .app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

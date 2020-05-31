@@ -48,11 +48,10 @@
         <el-button v-on:click="$emit('update:layout', 'history')" class="cell shrink" icon="el-icon-receiving" :title="phrases.archive" />
       </div>
     </div>
-
+    <loading class="cell" v-if="loading" />
 
       <div class="result-container">
         <div class="grid-x grid-margin-x">
-          <loading class="cell" v-if="loading" />
           <div v-if="currentReceived" class="cell medium-8">
             <div class="current-title">
               {{phrases.title}}<br>
@@ -192,26 +191,19 @@ export default {
   name: 'MyWeather',
   props: ['selectedLanguage'],
   data() {
-    const query = '';
-    const result = {};
-    const queryHistory = [];
-    const historyView = false;
-    const loading = false;
-    const queryError = false;
     return {
-      query,
-      result,
-      historyView,
-      queryHistory,
-      loading,
-      queryError,
+      query: null,
+      result: {},
+      queryHistory: [],
+      historyView: false,
+      loading: false,
+      queryError: false,
       weatherHistory: [],
       cities: [],
       timeout: null,
       weather: null,
       phrases: [],
       currentReceived: false,
-      forecastReceived: false,
       geoOptions: {
         enableHighAccuracy: true,
         timeout: 5000,
@@ -332,7 +324,7 @@ export default {
         this.getWeatherCurrentLocation(coord);
       }, error, this.geoOptions);
     },
-    getWeatherCurrentLocation(coord) { /* получаем погоду по геолокации и вызываем getOnecallWeather.
+    getWeatherCurrentLocation(coord) { /* получаем погоду по текущей геолокации и вызываем getOnecallWeather.
     это необходимо только для того, чтобы у нас было название города :( */
       this.currentReceived = false;
       this.weather = [];
@@ -370,7 +362,8 @@ export default {
           console.log(error);
         });
     },
-    getOnecallWeather(coord, name) { // получаем все данные по погоде одним методом
+    getOnecallWeather(coord, name) { /* получаем все данные по погоде одним методом. метод работает только по координатам,
+     не предоставляет название города, поэтому приходится использовать дополнительные запросы выше, не имея бд с городами и координатами */
       this.currentReceived = false;
       this.weather = [];
       this.queryError = false;
@@ -383,10 +376,13 @@ export default {
           this.weather = response.data;
           this.weather.name = name;
           this.weather.current.date = moment.unix(this.weather.current.dt).format('L');
-          this.weather.hourly.forEach((item, i) => {
+
+          this.weather.hourly.forEach((item, i) => { // добавляем свойство с датой, для последующей группировки
             this.weather.hourly[i].day = moment.unix(item.dt).format('LL');
           });
-          this.weather.hourly = this.group(this.weather.hourly);
+
+          this.weather.hourly = this.group(this.weather.hourly); // группируем по дате
+
           this.loading = false;
           this.currentReceived = true;
           this.loading = false;
@@ -405,7 +401,7 @@ export default {
     selectedLanguage(selectedLanguage) { // отслеживаем изменения в props и меняем язык, запрашиваем погоду в выбранном языке
       moment.locale(selectedLanguage);
       this.phrases = (selectedLanguage === 'ru') ? language.ru : language.en;
-      if (this.query) { this.getCurrentWeather(); }
+      if (this.query) this.getCurrentWeather();
     },
   },
 };
