@@ -1,4 +1,4 @@
-# test
+# Тестовое задание "Сервис о погоде"
 
 ## Project setup
 ```
@@ -13,6 +13,10 @@ npm run serve
 ### Demo
 
 https://egerr10.github.io
+
+### Стек:
+
+Vue.js, CSS grid ZURB Foundation
 
 ### Фичлист:
 
