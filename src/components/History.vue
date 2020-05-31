@@ -122,7 +122,7 @@ export default {
       }
     },
     weatherImg(code) {
-      return `http://openweathermap.org/img/wn/${code}.png`;
+      return `https://openweathermap.org/img/wn/${code}.png`;
     },
     infinityEmulator() { // эмулируем страницы
       return this.weather.slice(0, this.page);

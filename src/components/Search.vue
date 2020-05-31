@@ -234,7 +234,7 @@ export default {
   },
   methods: {
     weatherImg(code) {
-      return `http://openweathermap.org/img/wn/${code}.png`;
+      return `https://openweathermap.org/img/wn/${code}.png`;
     },
     querySearch(queryString, cb) { // ищем наш город в автокомплите
       this.historyView = false;
