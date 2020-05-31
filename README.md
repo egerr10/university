@@ -16,7 +16,7 @@ https://egerr10.github.io
 
 ### Стек:
 
-Vue.js, CSS grid ZURB Foundation
+Vue.js, Element.io, CSS grid ZURB Foundation
 
 ### Фичлист:
 
