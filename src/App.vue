@@ -24,7 +24,7 @@ export default {
       layout: 'search',
     };
   },
-  mounted() {
+  mounted() { /* проверяем LS на наличие поля с локализацией, если нет - записываем */
     if (!localStorage.getItem('language')) {
       this.selectedLanguage = (window.navigator.language === 'ru') ? 'ru' : 'en';
       localStorage.setItem('language', this.selectedLanguage);

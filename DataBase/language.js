@@ -19,6 +19,8 @@ export default {
     archive: 'Архив',
     archiveQuery: 'Архив запросов',
     backToSearch: 'Назад к поиску',
+    sortOnesFirst: 'Сначала новые',
+    sortOnesOld: 'Сначала старые',
   },
   en: {
     searchTitle: 'Your city name',
@@ -40,5 +42,7 @@ export default {
     archive: 'Archive',
     archiveQuery: 'Request archive',
     backToSearch: 'Back to search',
+    sortOnesFirst: 'New ones first',
+    sortOnesOld: 'First the old ones',
   },
 };

@@ -220,18 +220,18 @@ export default {
     };
   },
   mounted() {
-    this.cities = citiesBase;
+    this.cities = citiesBase; // получаем массив городов для автокомплита
     moment.locale(this.selectedLanguage);
-    this.phrases = (this.selectedLanguage === 'ru') ? language.ru : language.en;
+    this.phrases = (this.selectedLanguage === 'ru') ? language.ru : language.en; // берем правильную локализацию
 
-    if (!JSON.parse(localStorage.getItem('queryHistory'))) {
+    if (!JSON.parse(localStorage.getItem('queryHistory'))) { // получаем из LS историю запросов для поиска
       localStorage.setItem('queryHistory', JSON.stringify(this.queryHistory));
     } else {
       this.queryHistory = JSON.parse(localStorage.getItem('queryHistory'));
     }
-    this.weatherHistory = JSON.parse(localStorage.getItem('weatherHistory')) || [];
+    this.weatherHistory = JSON.parse(localStorage.getItem('weatherHistory')) || []; // получаем историю погоды
 
-    $(document).mouseup((e) => {
+    $(document).mouseup((e) => { // немного jQuery, да простят меня на ревью)) просто ради экономии времени
       const div = $('#input');
       const div2 = $('#queryHistory');
       if (!div.is(e.target) && div.has(e.target).length === 0
@@ -244,15 +244,15 @@ export default {
     weatherImg(code) {
       return `http://openweathermap.org/img/wn/${code}.png`;
     },
-    querySearch(queryString, cb) {
+    querySearch(queryString, cb) { // ищем наш город в автокомплите
       this.historyView = false;
       const results = this.cities.filter(this.createFilter(queryString));
       cb(results);
     },
-    createFilter(queryString) {
+    createFilter(queryString) { // фильтр автокомплита
       return (item) => (item.city.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
     },
-    handleSelect(item) { // запускаем функцию поиска по википедии
+    handleSelect(item) { // хэндл из автокомплита
       if (item.city || item.city === '') {
         this.query = item.city;
         this.getCurrentWeather();
@@ -265,8 +265,7 @@ export default {
         this.historyView = true;
       }
     },
-    checkQueryHistory() { // проверяем есть ли такой запрос в истории, если есть не добавляем
-      console.log(this.query);
+    checkQueryHistory() { // проверяем есть ли такой запрос в истории
       const word = this.query;
       const checkHistory = this.queryHistory.slice();
       for (let i = 0; i < checkHistory.length; i += 1) {
@@ -285,10 +284,10 @@ export default {
         this.saveQueryHistory();
       }
     },
-    saveQueryHistory() { // сохраняем в localStorage
+    saveQueryHistory() { // сохраняем историю запросов в localStorage
       localStorage.setItem('queryHistory', JSON.stringify(this.queryHistory));
     },
-    deleteQueryHistoryAll() { // очищаем историю
+    deleteQueryHistoryAll() { // очищаем историю запросов
       this.historyView = false;
       this.queryHistory = [];
       this.saveQueryHistory();
@@ -297,12 +296,12 @@ export default {
       this.queryHistory.splice(index, 1);
       this.saveQueryHistory();
     },
-    getFromHistoryQuery(query) { // поиск по запросу из истории
+    getFromHistoryQuery(query) { // получаем погоду по запросу из истории
       this.query = query;
       this.historyView = false;
       this.getCurrentWeather();
     },
-    pushWhetherHistory(weather) { // добавляем запрос в историю
+    pushWhetherHistory(weather) { // добавляем запись погоды в историю
       if (this.weatherHistory.length < 100) {
         this.weatherHistory.unshift(weather);
         this.saveWhetherHistory();
@@ -312,17 +311,17 @@ export default {
         this.saveWhetherHistory();
       }
     },
-    saveWhetherHistory() { // сохраняем в localStorage
+    saveWhetherHistory() { // сохраняем массив истории погоды в localStorage
       localStorage.setItem('weatherHistory', JSON.stringify(this.weatherHistory));
     },
-    group(array) {
+    group(array) { // обрабатываем массив с почасовой погодой, группируем по дате
       return array.reduce((acc, obj) => {
         acc[obj.day] = acc[obj.day] || [];
         acc[obj.day].push(obj);
         return acc;
       }, {});
     },
-    getCurrentLocation() {
+    getCurrentLocation() { // получаем гео своей локации и делаем запрос погоды
       function error(err) {
         console.warn(`ERROR(${err.code}): ${err.message}`);
       }
@@ -333,7 +332,8 @@ export default {
         this.getWeatherCurrentLocation(coord);
       }, error, this.geoOptions);
     },
-    getWeatherCurrentLocation(coord) {
+    getWeatherCurrentLocation(coord) { /* получаем погоду по геолокации и вызываем getOnecallWeather.
+    это необходимо только для того, чтобы у нас было название города :( */
       this.currentReceived = false;
       this.weather = [];
       this.queryError = false;
@@ -352,7 +352,7 @@ export default {
           console.log(error);
         });
     },
-    getCurrentWeather() { // получаем координаты и название для полноценного запроса:(
+    getCurrentWeather() { // получаем координаты и название города, вызываем основной метод getOnecallWeather
       this.currentReceived = false;
       this.weather = [];
       this.queryError = false;
@@ -370,7 +370,7 @@ export default {
           console.log(error);
         });
     },
-    getOnecallWeather(coord, name) {
+    getOnecallWeather(coord, name) { // получаем все данные по погоде одним методом
       this.currentReceived = false;
       this.weather = [];
       this.queryError = false;
@@ -402,7 +402,7 @@ export default {
     },
   },
   watch: {
-    selectedLanguage(selectedLanguage) { // отслеживаем изменения в props и меняем язык, запрашиваем погоду в текущем языке
+    selectedLanguage(selectedLanguage) { // отслеживаем изменения в props и меняем язык, запрашиваем погоду в выбранном языке
       moment.locale(selectedLanguage);
       this.phrases = (selectedLanguage === 'ru') ? language.ru : language.en;
       if (this.query) { this.getCurrentWeather(); }

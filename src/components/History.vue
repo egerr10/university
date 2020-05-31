@@ -6,10 +6,17 @@
           <div>{{phrases.archiveQuery}}</div>
         </div>
         <div class="cell">
-          <el-button v-on:click="$emit('update:layout', 'search')" icon="el-icon-search">
+          <el-button v-on:click="$emit('update:layout', 'search')" size="mini" icon="el-icon-search">
             {{phrases.backToSearch}}
           </el-button>
         </div>
+
+        <div class="cell sort-button">
+          <el-button v-on:click="sortWeather" size="mini" icon="el-icon-sort">
+            {{sortTitle}}
+          </el-button>
+        </div>
+
         <div class="cell medium-16">
               <div v-for="day in infinityEmulator()" :key="day.dt" class="grid-x forecast-item">
                 <div class="cell shrink">
@@ -38,8 +45,33 @@
                 <div class="cell">
                   <el-collapse>
                     <el-collapse-item :title="phrases.daily" name="1">
-                      <div>Consistent with real life: in line with the process and logic of real life, and comply with languages and habits that the users are used to;</div>
-                      <div>Consistent within interface: all elements should be consistent, such as: design style, icons and texts, position of elements, etc.</div>
+                      <div v-for="day in day.daily" :key="day.dt" class="grid-x forecast-item">
+                        <div class="cell shrink">
+                          <div class="forecast-item-time">{{day.dt | date2}}</div>
+                          <img :src="weatherImg(day.weather[0].icon)" :alt="day.weather[0].description">
+                        </div>
+                        <div class="cell auto small-offset-1 medium-offset-3">
+                          <div class="forecast-item-row">
+                            <div class="day-temp">
+                              {{day.temp.day}} °C
+                            </div>
+                            <div class="night-temp">
+                              {{day.temp.night}} °C
+                            </div>
+                            <div class="cloud-description">
+                              {{day.weather[0].description}}
+                            </div>
+                          </div>
+                          <div class="forecast-item-row">
+                            {{day.wind_speed}} {{phrases.windSpeed}},
+                            {{phrases.humidity}} {{day.humidity}}%
+                          </div>
+                          <div class="forecast-item-row">
+                            {{phrases.cloudiness}}: {{day.clouds}}%,
+                            {{Math.floor(day.pressure / 1.333)}} {{phrases.mercury}}
+                          </div>
+                        </div>
+                      </div>
                     </el-collapse-item>
                   </el-collapse>
                 </div>
@@ -64,6 +96,7 @@ export default {
       phrases: [],
       weather: [],
       page: 10,
+      sortKey: false,
     };
   },
   mounted() {
@@ -73,7 +106,21 @@ export default {
 
     this.weather = JSON.parse(localStorage.getItem('weatherHistory')) || [];
   },
+  computed: {
+    sortTitle() {
+      return this.sortKey ? this.phrases.sortOnesFirst : this.phrases.sortOnesOld;
+    },
+  },
   methods: {
+    sortWeather() {
+      if (this.sortKey) {
+        this.weather.sort((a, b) => (a.current.dt < b.current.dt ? 1 : -1));
+        this.sortKey = false;
+      } else {
+        this.weather.sort((a, b) => (a.current.dt > b.current.dt ? 1 : -1));
+        this.sortKey = true;
+      }
+    },
     weatherImg(code) {
       return `http://openweathermap.org/img/wn/${code}.png`;
     },
@@ -122,5 +169,9 @@ export default {
 
   .forecast-item-time {
     font-size: 14px;
+  }
+
+  .sort-button {
+    margin-top: 10px;
   }
 </style>
