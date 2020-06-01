@@ -31,7 +31,7 @@
                 <div class="cell auto small-offset-1 medium-offset-3">
                   <div class="forecast-item-row">
                     <div class="day-temp">
-                      {{day.current.temp}} °C
+                      {{Math.round(day.current.temp)}} °C
                     </div>
                     <div class="cloud-description">
                       {{day.current.weather[0].description}}
@@ -43,7 +43,7 @@
                   </div>
                   <div class="forecast-item-row">
                     {{phrases.cloudiness}}: {{day.current.clouds}}%,
-                    {{Math.floor(day.current.pressure / 1.333)}} {{phrases.mercury}}
+                    {{Math.round(day.current.pressure / 1.333)}} {{phrases.mercury}}
                   </div>
                 </div>
                 <div class="cell">
@@ -57,10 +57,10 @@
                         <div class="cell auto small-offset-1 medium-offset-3">
                           <div class="forecast-item-row">
                             <div class="day-temp">
-                              {{day.temp.day}} °C
+                              {{Math.round(day.temp.day)}} °C
                             </div>
                             <div class="night-temp">
-                              {{day.temp.night}} °C
+                              {{Math.round(day.temp.night)}} °C
                             </div>
                             <div class="cloud-description">
                               {{day.weather[0].description}}
@@ -72,7 +72,7 @@
                           </div>
                           <div class="forecast-item-row">
                             {{phrases.cloudiness}}: {{day.clouds}}%,
-                            {{Math.floor(day.pressure / 1.333)}} {{phrases.mercury}}
+                            {{Math.round(day.pressure / 1.333)}} {{phrases.mercury}}
                           </div>
                         </div>
                       </div>

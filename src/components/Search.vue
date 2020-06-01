@@ -60,9 +60,9 @@
             <div class="current-data">
               <img :src="weatherImg(weather.current.weather[0].icon)" alt="">
               <div>
-                <div class="current-temp">{{weather.current.temp}} °C</div>
+                <div class="current-temp">{{Math.round(weather.current.temp)}} °C</div>
                 <div class="current-feels">
-                  ({{phrases.feels_like}} {{weather.current.feels_like}} °C)
+                  ({{phrases.feels_like}} {{Math.round(weather.current.feels_like)}} °C)
                 </div>
               </div>
             </div>
@@ -81,7 +81,7 @@
                 </tr>
                 <tr>
                   <td>{{phrases.pressure}}</td>
-                  <td>{{Math.floor(weather.current.pressure / 1.333)}} {{phrases.mercury}}</td>
+                  <td>{{Math.round(weather.current.pressure / 1.333)}} {{phrases.mercury}}</td>
                 </tr>
                 <tr>
                   <td>{{phrases.humidity}}</td>
@@ -112,10 +112,10 @@
                     <div class="cell auto small-offset-1 medium-offset-3">
                       <div class="forecast-item-row">
                         <div class="day-temp">
-                          {{day.temp.day}} °C
+                         {{Math.round(day.temp.day)}} °C
                         </div>
                         <div class="night-temp">
-                          {{day.temp.night}} °C
+                          {{Math.round(day.temp.night)}} °C
                         </div>
                         <div class="cloud-description">
                           {{day.weather[0].description}}
@@ -127,7 +127,7 @@
                       </div>
                       <div class="forecast-item-row">
                         {{phrases.cloudiness}}: {{day.clouds}}%,
-                        {{Math.floor(day.pressure / 1.333)}} {{phrases.mercury}}
+                        {{Math.round(day.pressure / 1.333)}} {{phrases.mercury}}
                       </div>
                     </div>
                   </div>
@@ -148,7 +148,7 @@
                         <div class="cell auto small-offset-1 medium-offset-3">
                           <div class="forecast-item-row">
                             <div class="hour-temp">
-                              {{hour.temp}} °C
+                              {{Math.round(hour.temp)}} °C
                             </div>
                             <div class="cloud-description">
                               {{hour.weather[0].description}}
@@ -160,7 +160,7 @@
                           </div>
                           <div class="forecast-item-row">
                             {{phrases.windSpeed}} {{hour.clouds}}%,
-                            {{Math.floor(hour.pressure / 1.333)}} {{phrases.mercury}}
+                            {{Math.round(hour.pressure / 1.333)}} {{phrases.mercury}}
                           </div>
                         </div>
                         </div>
